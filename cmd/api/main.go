@@ -88,6 +88,14 @@ func handleSendEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	expectedKey := os.Getenv("INTERNAL_API_KEY")
+	providedKey := r.Header.Get("X-Internal-Secret")
+
+	if providedKey == "" || providedKey != expectedKey {
+		writeJSONError(w, http.StatusUnauthorized, "unauthorized", nil)
+		return
+	}
+
 	var req EmailRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
